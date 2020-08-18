@@ -1,0 +1,42 @@
+{
+	"name": "buzzer-srv",
+	"version": "1.0.0",
+	"description": "",
+	"main": "build/index.js",
+	"scripts": {
+		"start": "echo Please run npm:watch and npm:serve separately.",
+		"build": "tsc",
+		"watch": "tsc --watch",
+		"serve": "nodemon build/index.js",
+		"db:reset": "node build/db/reset.js",
+		"db:show": "node build/db/show.js"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@koa/cors": "^3.1.0",
+		"@koa/router": "^9.3.1",
+		"@types/bcrypt": "^3.0.0",
+		"@types/cli-table": "^0.3.0",
+		"@types/koa": "^2.11.3",
+		"@types/koa-bodyparser": "^4.3.0",
+		"@types/koa__cors": "^3.0.1",
+		"@types/koa__router": "^8.0.2",
+		"@types/node": "^14.0.27",
+		"@types/socket.io": "^2.1.11",
+		"@types/sqlite3": "^3.1.6",
+		"bcrypt": "^5.0.0",
+		"cli-table": "^0.3.1",
+		"koa": "^2.13.0",
+		"koa-bodyparser": "^4.3.0",
+		"koa-websocket": "^6.0.0",
+		"moment": "^2.27.0",
+		"socket.io": "^2.3.0",
+		"sqlite": "^4.0.14",
+		"sqlite3": "^5.0.0",
+		"typescript": "^3.9.7"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.4"
+	}
+}
