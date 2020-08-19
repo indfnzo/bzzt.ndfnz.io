@@ -114,7 +114,7 @@ export default class RoomService {
 
 		// disconnect all users
 		if (!this.io) return;
-		for (const socketId of Object.keys(this.io.sockets.sockets || {})) {
+		for (const socketId of Object.keys(this.io.sockets || {})) {
 			const socket = this.io.sockets[socketId];
 			if (Object.keys(socket.rooms).includes(roomCode)) {
 				socket.disconnect(true);

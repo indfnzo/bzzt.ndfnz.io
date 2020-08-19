@@ -136,7 +136,7 @@ export default class RoomInstance {
 		const io = roomService.io;
 		if (!io) return;
 
-		for (const socket of Object.values(io.sockets.sockets || {})) {
+		for (const socket of Object.values(io.sockets || {})) {
 			if (Object.keys(socket.rooms).includes(this.roomCode)) {
 				io.to(this.roomCode).emit('room:participants:changed', this.getParticipants());
 			}
