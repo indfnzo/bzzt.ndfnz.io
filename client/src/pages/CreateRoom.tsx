@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 
+import config from '../config';
 import { Header, Form, Input, ButtonGroup, Button } from '../components';
 import { useRandomName } from '../hooks';
 
@@ -46,7 +47,7 @@ const CreateRoom = () => {
 	}
 
 	const createRoom = (data: FormData) => {
-		axios.post('http://localhost:9000/rooms/new', data)
+		axios.post(`${config.apiBaseUrl}/rooms/new`, data)
 			.then(res => {
 				const roomCode = res.data.room.roomCode;
 				window.sessionStorage.setItem(`BUZZERAPP:ROOM:${roomCode}:OTP`, data.password);

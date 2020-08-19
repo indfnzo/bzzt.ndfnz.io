@@ -7,7 +7,7 @@ import setupClassicGame from './middlewares/setupClassicGame';
 import RoomService from '../services/roomService';
 const roomService = RoomService.getInstance('rooms.db');
 
-const setupSocketServer = (io: socketIO.Server) => {
+const setupSocketServer = (io: socketIO.Namespace) => {
 	roomService.register(io);
 
 	// authentication and join room

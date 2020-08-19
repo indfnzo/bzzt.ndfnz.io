@@ -31,8 +31,8 @@ export default class RoomService {
 		});
 	}
 
-	io?: SocketIO.Server;
-	register = (io: SocketIO.Server) => {
+	io?: SocketIO.Namespace;
+	register = (io: SocketIO.Namespace) => {
 		this.io = io;
 	}
 
@@ -115,7 +115,7 @@ export default class RoomService {
 		// disconnect all users
 		if (!this.io) return;
 		for (const socketId of Object.keys(this.io.sockets.sockets || {})) {
-			const socket = this.io.sockets.sockets[socketId];
+			const socket = this.io.sockets[socketId];
 			if (Object.keys(socket.rooms).includes(roomCode)) {
 				socket.disconnect(true);
 			}
