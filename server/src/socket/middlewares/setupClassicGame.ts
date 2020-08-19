@@ -50,7 +50,7 @@ const setupClassicGame = (socket: AuthenticatedSocket) => {
 	const game = room.classic;
 
 	const emitState = (user?: User) => {
-		socket.server
+		socket.nsp
 			.to(user ? user.socketId : room.roomCode)
 			.emit('game:classic:update', game.state);
 	}
@@ -81,16 +81,16 @@ const setupClassicGame = (socket: AuthenticatedSocket) => {
 	}
 
 	socket.on('game:classic:player:buzz:test', () => {
-		socket.server.to(room.roomCode).emit('game:classic:player:buzz:test', user.name);
+		socket.nsp.to(room.roomCode).emit('game:classic:player:buzz:test', user.name);
 	});
 
 	socket.on('game:classic:player:buzz', () => {
 		if (!game.state.buzzersOnline) return;
 		if (game.buzz(user.name)) {
-			socket.server.to(room.roomCode).emit('game:classic:player:buzz:accepted', user.name);
+			socket.nsp.to(room.roomCode).emit('game:classic:player:buzz:accepted', user.name);
 			emitState();
 		} else {
-			socket.server.to(room.roomCode).emit('game:classic:player:buzz:rejected', user.name);
+			socket.nsp.to(room.roomCode).emit('game:classic:player:buzz:rejected', user.name);
 		}
 	});
 }
