@@ -253,12 +253,13 @@ export const PlayerControls = (props: { game: GameController }) => {
 	const { state, buzzerTest, userBuzzed } = props.game.classic;
 
 	const accepted = state.winner?.toLocaleLowerCase() === currentUser.toLocaleLowerCase();
+	const locked = state.lockedBuzzers.indexOf(currentUser.toLocaleLowerCase()) >= 0;
 
 	return (
 		<>
 			<GameHeader game={props.game} />
 			<CenterWrapper className="buzzer-wrapper">
-				<BuzzerButton accepted={accepted} online={state.buzzersOnline} onTest={buzzerTest} onBuzz={userBuzzed} />
+				<BuzzerButton accepted={accepted} online={state.buzzersOnline} locked={locked} onTest={buzzerTest} onBuzz={userBuzzed} />
 			</CenterWrapper>
 			<UserPopups game={props.game} />
 		</>

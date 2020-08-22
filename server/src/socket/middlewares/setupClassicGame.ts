@@ -4,6 +4,7 @@ export class ClassicGameInstance {
 	state: {
 		round: number;
 		buzzersOnline: boolean;
+		lockedBuzzers: string[];
 		winner: string | null;
 		scores: { [user: string]: number }
 	};
@@ -12,6 +13,7 @@ export class ClassicGameInstance {
 		this.state = {
 			round: 1,
 			buzzersOnline: false,
+			lockedBuzzers: [],
 			winner: null,
 			scores: {}
 		};
@@ -23,14 +25,16 @@ export class ClassicGameInstance {
 	}
 
 	nextRound = () => {
+		if (this.state.winner) this.incrementScore(this.state.winner);
 		this.state.round++;
 		this.reset();
 	}
 
 	buzz = (username: string) => {
+		if (this.state.lockedBuzzers.indexOf(username.toLocaleLowerCase()) >= 0) return;
+
 		if (this.state.winner == null) {
 			this.state.winner = username;
-			this.incrementScore(username);
 			return true;
 		}
 
@@ -40,7 +44,14 @@ export class ClassicGameInstance {
 	incrementScore = (username: string) => {
 		const key = username.toLocaleLowerCase();
 		if (key in this.state.scores) this.state.scores[key]++;
-		else this.state.scores[key] = 0;
+		else this.state.scores[key] = 1;
+	}
+
+	toggleBuzzerLock = (username: string) => {
+		const key = username.toLocaleLowerCase();
+		const index = this.state.lockedBuzzers.indexOf(key);
+		if (index >= 0) this.state.lockedBuzzers.splice(index, 1);
+		else this.state.lockedBuzzers.push(key);
 	}
 }
 
@@ -66,6 +77,11 @@ const setupClassicGame = (socket: AuthenticatedSocket) => {
 
 		socket.on('game:classic:admin:buzzers:off', () => {
 			game.state.buzzersOnline = false;
+			emitState();
+		});
+
+		socket.on('game:classic:admin:buzzers:toggleLock', (username: string) => {
+			game.toggleBuzzerLock(username);
 			emitState();
 		});
 

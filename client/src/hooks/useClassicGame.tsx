@@ -5,6 +5,7 @@ import useSounds from './useSounds';
 export type ClassicGameState = {
 	round: number;
 	buzzersOnline: boolean;
+	lockedBuzzers: string[];
 	winner: string | null;
 	scores: { [user: string]: number };
 }
@@ -16,12 +17,14 @@ export type ClassicGameController = {
 	userBuzzed: () => void;
 	reset: () => void;
 	nextRound: () => void;
+	toggleBuzzerLock: (username: string) => void;
 }
 
 const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: string): ClassicGameController => {
 	const [state, setState] = useState<ClassicGameState>({
 		round: 1,
 		buzzersOnline: false,
+		lockedBuzzers: [],
 		winner: null,
 		scores: {}
 	});
@@ -52,6 +55,10 @@ const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: 
 		socket.emit(`game:classic:admin:buzzers:${state.buzzersOnline ? 'off' : 'on'}`);
 	}
 
+	const toggleBuzzerLock = (username: string) => {
+		socket.emit('game:classic:admin:buzzers:toggleLock', username);
+	}
+
 	const buzzerTest = () => {
 		socket.emit('game:classic:player:buzz:test', currentUser);
 	}
@@ -71,6 +78,7 @@ const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: 
 	return {
 		state,
 		toggleBuzzers,
+		toggleBuzzerLock,
 		buzzerTest,
 		userBuzzed,
 		reset,

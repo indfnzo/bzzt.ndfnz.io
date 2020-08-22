@@ -29,7 +29,6 @@ const authenticate = async (socket: AuthenticatedSocket, next: (err?: any) => vo
 	// From here on out, any disconnection from the socket should force the user to leave the room.
 	const user = room.join(socket.id, username);
 	socket.on('disconnect', reason => {
-		console.log(`user '${username}' disconnected: ${reason}`);
 		const user = room.getUser(socket.id);
 		if (user) room.leave(socket.id);
 	});

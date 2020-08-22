@@ -45,8 +45,8 @@ const useSocket = (roomCode: string, username: string, password: string): [boole
 		});
 
 		return () => {
-			console.log('closing connection...');
 			newSocket.off('connect');
+			newSocket.off('reconnect_attempt');
 			newSocket.off('disconnect');
 			newSocket.off('error');
 			newSocket.close();
