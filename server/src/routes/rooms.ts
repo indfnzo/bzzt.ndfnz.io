@@ -6,6 +6,22 @@ const roomService = RoomService.getInstance('rooms.db');
 
 const router = new Router();
 
+router.get('/rooms', async (ctx, next) => {
+	const rooms = await roomService.getAllRooms();
+
+	ctx.body = {
+		total: rooms.length,
+		rooms: rooms.map(room => ({
+			id: room.id,
+			roomCode: room.roomCode,
+			roomName: room.roomName,
+			hasPassword: room.hasPassword,
+			roomAdmin: room.roomAdmin,
+			dateCreatedUtc: room.dateCreatedUtc
+		}))
+	};
+});
+
 router.get('/rooms/:roomCode', async (ctx, next) => {
 	const roomCode = ctx.params.roomCode?.trim().substr(0, 8).toUpperCase();
 	const room = await roomService.getRoom(roomCode);
