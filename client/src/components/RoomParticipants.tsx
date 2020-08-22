@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { transparentize } from 'polished';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
+import { faStar, faLock, faUnlock, faPlus, faMinus, faTrophy } from '@fortawesome/free-solid-svg-icons';
 
 import { GameController } from '../hooks/useGameController';
 
@@ -44,14 +44,25 @@ const UserPanel = styled.div`
 	.admin-icon {
 		flex: 0 0 auto;
 		margin-left: 0.75em;
+		font-size: 0.9rem;
+		line-height: 1;
 		color: ${props => props.theme.yellow};
 	}
 
 	.lock-icon {
 		flex: 0 0 auto;
 		margin-left: 0.75em;
-		font-size: 0.8rem;
+		font-size: 0.9rem;
+		line-height: 1;
 		color: ${props => props.theme.red};
+	}
+
+	.winner-icon {
+		flex: 0 0 auto;
+		margin-left: 0.75em;
+		font-size: 0.9rem;
+		line-height: 1;
+		color: ${props => props.theme.green};
 	}
 
 	.spacer {
@@ -84,11 +95,16 @@ const UserPanel = styled.div`
 		}
 
 		.user-score {
+			min-width: 2rem;
 			margin-left: 0.25rem;
-			padding: 0 0.25rem;
+			padding: 0 0.5rem;
 			line-height: 2rem;
-			color: ${props => props.theme.green};
 			font-weight: 900;
+			color: transparent;
+
+			&.active {
+				color: ${props => props.theme.green};
+			}
 		}
 	}
 `;
@@ -98,6 +114,8 @@ const RoomParticipants = (props: { game: GameController }) => {
 
 	const currentUserIsAdmin = room.roomAdmin.toLocaleLowerCase() === currentUser.toLocaleLowerCase();
 
+	const maxScore = Math.max(...Object.values(props.game.classic.state.scores));
+
 	const userPanels = [];
 	for (const u of participants) {
 		const isActive = currentUser.toLocaleLowerCase() === u.name.toLocaleLowerCase();
@@ -105,9 +123,12 @@ const RoomParticipants = (props: { game: GameController }) => {
 		const isAdmin = room.roomAdmin.toLocaleLowerCase() === u.name.toLocaleLowerCase();
 
 		const classic = props.game.mode === 'classic';
-		const showLockControls = currentUserIsAdmin && !isAdmin;
+		const showUserControls = currentUserIsAdmin && !isAdmin;
 		const toggleBuzzerLock = props.game.classic.toggleBuzzerLock;
+		const decrementScore = props.game.classic.decrementScore;
+		const incrementScore = props.game.classic.incrementScore;
 		const score = props.game.classic.state.scores[u.name.toLocaleLowerCase()];
+		const highscore = score > 0 && score === maxScore;
 		let locked = false;
 		if (classic) {
 			const state = props.game.classic.state;
@@ -128,19 +149,36 @@ const RoomParticipants = (props: { game: GameController }) => {
 						<FontAwesomeIcon icon={faLock} />
 					</span>
 				: null }
+				{ highscore ?
+					<span className="winner-icon">
+						<FontAwesomeIcon icon={faTrophy} />
+					</span>
+				: null }
 
 				<div className="spacer"></div>
 
 				<div className="user-actions">
 					{ classic ?
 						<>
-							<span className="user-score">
-								{ score }
-							</span>
-							{ showLockControls ?
-								<button className="button-icon" title={ locked ? 'Unlock' : 'Lock' } onClick={() => toggleBuzzerLock(u.name)}>
-									<FontAwesomeIcon icon={ locked ? faUnlock : faLock } />
+							{ showUserControls ?
+								<button className="button-icon" title="-1" onClick={() => decrementScore(u.name)}>
+									<FontAwesomeIcon icon={ faMinus } />
 								</button>
+							: null }
+							{ !isAdmin ?
+								<span className={`user-score ${ score > 0 ? 'active' : '' }`}>
+									{ score ?? 0 }
+								</span>
+							: null }
+							{ showUserControls ?
+								<>
+									<button className="button-icon" title="+1" onClick={() => incrementScore(u.name)}>
+										<FontAwesomeIcon icon={ faPlus } />
+									</button>
+									<button className="button-icon" title={ locked ? 'Unlock' : 'Lock' } onClick={() => toggleBuzzerLock(u.name)}>
+										<FontAwesomeIcon icon={ locked ? faUnlock : faLock } />
+									</button>
+								</>
 							: null }
 						</>
 					: null }

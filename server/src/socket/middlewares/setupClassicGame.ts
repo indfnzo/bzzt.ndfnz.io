@@ -41,6 +41,12 @@ export class ClassicGameInstance {
 		return false;
 	}
 
+	decrementScore = (username: string) => {
+		const key = username.toLocaleLowerCase();
+		if (key in this.state.scores && this.state.scores[key] > 0) this.state.scores[key]--;
+		else this.state.scores[key] = 0;
+	}
+
 	incrementScore = (username: string) => {
 		const key = username.toLocaleLowerCase();
 		if (key in this.state.scores) this.state.scores[key]++;
@@ -92,6 +98,16 @@ const setupClassicGame = (socket: AuthenticatedSocket) => {
 
 		socket.on('game:classic:admin:nextRound', () => {
 			game.nextRound();
+			emitState();
+		});
+
+		socket.on('game:classic:admin:scores:decrement', (username: string) => {
+			game.decrementScore(username);
+			emitState();
+		});
+
+		socket.on('game:classic:admin:scores:increment', (username: string) => {
+			game.incrementScore(username);
 			emitState();
 		});
 	}

@@ -18,6 +18,8 @@ export type ClassicGameController = {
 	reset: () => void;
 	nextRound: () => void;
 	toggleBuzzerLock: (username: string) => void;
+	decrementScore: (username: string) => void;
+	incrementScore: (username: string) => void;
 }
 
 const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: string): ClassicGameController => {
@@ -75,6 +77,14 @@ const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: 
 		socket.emit('game:classic:admin:nextRound');
 	}
 
+	const decrementScore = (username: string) => {
+		socket.emit('game:classic:admin:scores:decrement', username);
+	}
+
+	const incrementScore = (username: string) => {
+		socket.emit('game:classic:admin:scores:increment', username);
+	}
+
 	return {
 		state,
 		toggleBuzzers,
@@ -82,7 +92,9 @@ const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: 
 		buzzerTest,
 		userBuzzed,
 		reset,
-		nextRound
+		nextRound,
+		decrementScore,
+		incrementScore
 	};
 };
 
