@@ -10,6 +10,11 @@ export type ClassicGameState = {
 	scores: { [user: string]: number };
 }
 
+export type ClassicGameLocalOptions = {
+	volume: number,
+	mute: boolean
+}
+
 export type ClassicGameController = {
 	state: ClassicGameState;
 	toggleBuzzers: () => void;
@@ -20,6 +25,10 @@ export type ClassicGameController = {
 	toggleBuzzerLock: (username: string) => void;
 	decrementScore: (username: string) => void;
 	incrementScore: (username: string) => void;
+
+	options: ClassicGameLocalOptions;
+	toggleMute: () => void;
+	setVolume: (volume: number) => void;
 }
 
 const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: string): ClassicGameController => {
@@ -31,6 +40,12 @@ const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: 
 		scores: {}
 	});
 
+	const [options, setOptions] = useState<ClassicGameLocalOptions>({
+		volume: 1.0,
+		mute: false
+	});
+
+	const volume = options.mute ? 0.0 : options.volume;
 	const sounds = useSounds();
 	const isAdmin = room.roomAdmin.toLocaleLowerCase() === currentUser.toLocaleLowerCase();
 
@@ -42,7 +57,7 @@ const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: 
 		socket.on('game:classic:player:buzz:accepted', (winner: string) => {
 			if (isAdmin || currentUser.toLocaleLowerCase() === winner.toLocaleLowerCase()) {
 				setTimeout(() => {
-					sounds.schwing();
+					sounds.schwing(volume);
 				}, 150);
 			}
 		});
@@ -85,6 +100,14 @@ const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: 
 		socket.emit('game:classic:admin:scores:increment', username);
 	}
 
+	const toggleMute = () => {
+		setOptions(prev => ({ volume: prev.volume, mute: !prev.mute }));
+	}
+
+	const setVolume = (volume: number) => {
+		setOptions(prev => ({ volume: volume, mute: prev.mute }));
+	}
+
 	return {
 		state,
 		toggleBuzzers,
@@ -94,7 +117,11 @@ const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: 
 		reset,
 		nextRound,
 		decrementScore,
-		incrementScore
+		incrementScore,
+
+		options,
+		toggleMute,
+		setVolume
 	};
 };
 

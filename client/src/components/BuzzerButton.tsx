@@ -89,9 +89,12 @@ export type BuzzerButtonProps = {
 	accepted?: boolean;
 	online?: boolean;
 	locked?: boolean;
+	volume?: number;
 }
 const BuzzerButton = (props: BuzzerButtonProps) => {
 	const [timeoutLocked, setTimeoutLocked] = useState(false);
+
+	const volume = props.volume == undefined ? 1.0 : props.volume;
 	const sounds = useSounds();
 
 	const online = props.online == null ? true : props.online;
@@ -104,8 +107,8 @@ const BuzzerButton = (props: BuzzerButtonProps) => {
 		else props.onTest();
 
 		// play sounds
-		sounds.mouthPop();
-		if (!online) setTimeout(sounds.jump, 250);
+		sounds.mouthPop(volume);
+		if (!online) setTimeout(() => sounds.jump(volume), 250);
 
 		setTimeoutLocked(true);
 		setTimeout(() => setTimeoutLocked(false), 1000);

@@ -1,18 +1,55 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { darken, transparentize } from 'polished';
+import classNames from 'classnames';
 
 import { GameController } from '../hooks/useGameController';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 const ChatHistory = styled.div`
-	padding: 0.5rem 2rem;
 	background: rgba(0, 0, 0, 0.05);
 
-	.label {
-		padding: 1rem 0;
-		font-size: 0.8rem;
-		font-weight: 900;
-		color: ${props => props.theme.primary.main};
-		text-transform: uppercase;
+	.chat-history {
+		padding: 0.5rem 2rem;
+	}
+
+	.history-header {
+		padding: 0 2rem;
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		background: ${transparentize(0.1, darken(0.05, 'white'))};
+		backdrop-filter: blur(2px);
+
+		.collapse-toggle {
+			display: block;
+			position: absolute;
+			top: 0.5rem;
+			right: 0.75rem;
+			width: 2rem;
+			height: 2rem;
+			appearance: none;
+			border: none;
+			border-radius: 50%;
+			background: white;
+			text-align: center;
+			line-height: 2rem;
+			cursor: pointer;
+			transition: all 100ms ease;
+
+			&:hover, &:focus {
+				box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25), 0 0 0 2px ${props => props.theme.primary.main};
+			}
+		}
+
+		.label {
+			padding: 1rem 0;
+			font-size: 0.8rem;
+			font-weight: 900;
+			color: ${props => props.theme.primary.main};
+			text-transform: uppercase;
+		}
 	}
 `;
 
@@ -48,20 +85,36 @@ const ChatMessage = (props: { message: ChatMessage }) => {
 
 const RoomChatHistory = (props: { autoscroll: boolean; game: GameController }) => {
 	const { chats } = props.game;
+	const [collapsed, setCollapsed] = useState(true);
 
 	const root = useRef<HTMLDivElement>(null);
 	const scrollReference = useRef<HTMLDivElement>(null);
 
 	// scroll to bottom every rerender
 	useEffect(() => {
-		if (props.autoscroll) scrollReference.current?.scrollIntoView({ behavior: 'smooth' });
-	}, [chats, props.autoscroll]);
+		if (props.autoscroll) {
+			if (!collapsed) scrollReference.current?.scrollIntoView({ behavior: 'smooth' });
+			else root.current?.scrollIntoView({ behavior: 'smooth' });
+		}
+	}, [chats, props.autoscroll, collapsed]);
+	
+	const rootClassNames = classNames('ui-room-chat-history', {
+		'collapsed': collapsed
+	});
 
 	return (
-		<ChatHistory ref={root} className="ui-room-chat-history">
-			<div className="label">Room Chat</div>
-			{ chats.map(chat => <ChatMessage key={chat.timestamp} message={chat} />) }
-			<div ref={scrollReference} className="scroll-reference"></div>
+		<ChatHistory ref={root} className={rootClassNames}>
+			<div className="history-header">
+				<div className="label">Room Chat</div>
+				<button className="collapse-toggle" onClick={() => setCollapsed(!collapsed)}>
+					{ collapsed ? <FontAwesomeIcon icon={faChevronUp} /> : <FontAwesomeIcon icon={faChevronDown} /> }
+				</button>
+			</div>
+
+			<div className="chat-history">
+				{ chats.map(chat => <ChatMessage key={chat.timestamp} message={chat} />) }
+				<div ref={scrollReference} className="scroll-reference"></div>
+			</div>
 		</ChatHistory>
 	);
 }

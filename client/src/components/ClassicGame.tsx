@@ -3,12 +3,11 @@ import styled, { keyframes } from 'styled-components';
 import { hsl } from 'polished';
 
 import Button from './Button';
-import ButtonGroup from './ButtonGroup';
 import BuzzerButton from './BuzzerButton';
 import { GameController } from '../hooks/useGameController';
 import { useSounds } from '../hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faUndo, faExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faExclamation, faVolumeOff } from '@fortawesome/free-solid-svg-icons';
 
 const translateUp = keyframes`
 	from { bottom: -100%; }
@@ -123,7 +122,9 @@ const UserPopup = (props: { user: UserPopupObject }) => {
 const LOSER_POPUP_DELAY = 1000;
 const UserPopups = (props: { game: GameController }) => {
 	const { socket } = props.game;
-	const { state } = props.game.classic;
+	const { state, options } = props.game.classic;
+
+	const volume = options.mute ? 0.0 : options.volume;
 	const sounds = useSounds();
 
 	const [users, setUsers] = useState<UserPopupObject[]>([]);
@@ -146,7 +147,7 @@ const UserPopups = (props: { game: GameController }) => {
 		const flashTest = (name: string) => flashUserPopup(name, 'test');
 		const flashError = (name: string) => {
 			flashUserPopup(name, 'error');
-			setTimeout(sounds.buzzerError, 150);
+			setTimeout(() => sounds.buzzerError(volume), 150);
 		}
 
 		socket.on('game:classic:player:buzz:test', flashTest);
@@ -184,21 +185,101 @@ const GameHeaderWrapper = styled.div`
 	}
 `;
 
+const VolumeButtonsWrapper = styled.div`
+	position: absolute;
+	top: 0;
+	right: 0;
+
+	.ui-button {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin: 1.5rem;
+		padding: 0.5rem;
+		width: 4rem;
+		text-align: center;
+	}
+
+	.volume-icon {
+		margin-right: 0.33rem;
+		font-size: 0;
+
+		svg {
+			font-size: 1rem;
+			line-height: 1rem;
+		}
+	}
+
+	.mute-icon {
+		display: inline-block;
+		font-size: 0;
+
+		svg {
+			font-size: 0.8rem;
+			line-height: 1rem;
+		}
+	}
+
+	.volume-bar {
+		display: inline-block;
+		margin-left: 3px;
+		height: 0.6rem;
+		width: 3px;
+		border-radius: 3px;
+		background: rgba(255, 255, 255, 0.25);
+
+		&.active {
+			background: white;
+		}
+	}
+`;
+
 const GameHeader = (props: { game: GameController }) => {
-	const { state } = props.game.classic;
+	const { state, options, toggleMute, setVolume } = props.game.classic;
+
+	const cycleVolume = () => {
+		if (options.mute) {
+			toggleMute();
+			setVolume(0.25);
+		} else {
+			if (options.volume === 0.25) {
+				setVolume(0.5);
+			} else if (options.volume === 0.5) {
+				setVolume(0.75);
+			} else if (options.volume === 0.75) {
+				setVolume(1.0);
+			} else {
+				toggleMute();
+			}
+		}
+	}
 
 	return (
 		<GameHeaderWrapper>
 			<div className="rounds">Round {state.round}</div>
+
+			<VolumeButtonsWrapper>
+				<Button onClick={cycleVolume}>
+					<span className="volume-icon">
+						<FontAwesomeIcon icon={faVolumeOff} />
+					</span>
+					{ options.mute ?
+						<div className="mute-icon">
+							<FontAwesomeIcon icon={faTimes} />
+						</div>
+					:
+						<>
+							<div className={`volume-bar ${options.volume >= 0.25 ? 'active' : ''}`}></div>
+							<div className={`volume-bar ${options.volume >= 0.5 ? 'active' : ''}`}></div>
+							<div className={`volume-bar ${options.volume >= 0.75 ? 'active' : ''}`}></div>
+							<div className={`volume-bar ${options.volume >= 1.0 ? 'active' : ''}`}></div>
+						</>
+					}
+				</Button>
+			</VolumeButtonsWrapper>
 		</GameHeaderWrapper>
 	);
 }
-
-const HeaderButtonsWrapper = styled.div`
-	position: absolute;
-	top: 0;
-	right: 0;
-`;
 
 const AdminControlsWrapper = styled.div`
 	height: 100%;
@@ -228,21 +309,27 @@ export const AdminControls = (props: { game: GameController }) => {
 		<AdminControlsWrapper>
 			<GameHeader game={props.game} />
 			<CenterWrapper>
-				<Button inverted onClick={toggleBuzzers}>
+				<Button inverted={state.buzzersOnline} onClick={toggleBuzzers}>
 					{state.buzzersOnline ? 'Turn Buzzers Off' : 'Turn Buzzers On'}
 				</Button>
 				{ status ? <div className="status">{status}</div> : null }
+
+				{ gameOver ?
+					<>
+						<br/>
+						<Button disabled={!gameOver} onClick={reset}>
+							Reset Buzzer
+						</Button>
+						<div className="status">Reset all buzzers without assigning points.</div>
+
+						<br/>
+						<Button disabled={!gameOver} onClick={nextRound}>
+							Next Round
+						</Button>
+						<div className="status">Give {state.winner} 1 point.</div>
+					</>
+				: null }
 			</CenterWrapper>
-			<HeaderButtonsWrapper>
-				<ButtonGroup>
-					<Button inverted disabled={!gameOver} onClick={reset}>
-						<FontAwesomeIcon icon={faUndo} />
-					</Button>
-					<Button inverted disabled={!gameOver} onClick={nextRound}>
-						Next Round
-					</Button>
-				</ButtonGroup>
-			</HeaderButtonsWrapper>
 			<UserPopups game={props.game} />
 		</AdminControlsWrapper>
 	);
@@ -250,16 +337,18 @@ export const AdminControls = (props: { game: GameController }) => {
 
 export const PlayerControls = (props: { game: GameController }) => {
 	const { currentUser } = props.game;
-	const { state, buzzerTest, userBuzzed } = props.game.classic;
+	const { state, buzzerTest, userBuzzed, options } = props.game.classic;
 
 	const accepted = state.winner?.toLocaleLowerCase() === currentUser.toLocaleLowerCase();
 	const locked = state.lockedBuzzers.indexOf(currentUser.toLocaleLowerCase()) >= 0;
+
+	const volume = options.mute ? 0.0 : options.volume;
 
 	return (
 		<>
 			<GameHeader game={props.game} />
 			<CenterWrapper className="buzzer-wrapper">
-				<BuzzerButton accepted={accepted} online={state.buzzersOnline} locked={locked} onTest={buzzerTest} onBuzz={userBuzzed} />
+				<BuzzerButton accepted={accepted} online={state.buzzersOnline} locked={locked} onTest={buzzerTest} onBuzz={userBuzzed} volume={volume} />
 			</CenterWrapper>
 			<UserPopups game={props.game} />
 		</>

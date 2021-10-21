@@ -13,20 +13,22 @@ for (const sound of Object.values(sounds)) {
 	sound.load();
 }
 
-const playSound = (audio: HTMLAudioElement) => {
+const playSound = (audio: HTMLAudioElement, volume: number) => {
+	console.log('playSound', volume);
 	const clone = audio.cloneNode() as HTMLAudioElement;
+	clone.volume = volume;
 	clone.play();
 }
 
 const useSounds = () => {
 	return {
-		click: () => playSound(sounds.click),
-		schwing: () => playSound(sounds.schwing),
-		mouthPop: () => playSound(sounds.mouthPop),
-		buzzerError: () => playSound(sounds.buzzerError),
-		beepUp: () => playSound(sounds.beepUp),
-		beepDown: () => playSound(sounds.beepDown),
-		jump: () => playSound(sounds.jump)
+		click: (volume = 1.0) => playSound(sounds.click, volume),
+		schwing: (volume = 1.0) => playSound(sounds.schwing, volume),
+		mouthPop: (volume = 1.0) => playSound(sounds.mouthPop, volume),
+		buzzerError: (volume = 1.0) => playSound(sounds.buzzerError, volume),
+		beepUp: (volume = 1.0) => playSound(sounds.beepUp, volume),
+		beepDown: (volume = 1.0) => playSound(sounds.beepDown, volume),
+		jump: (volume = 1.0) => playSound(sounds.jump, volume)
 	};
 };
 

@@ -27,8 +27,8 @@ export const RoomControlsWrapper = styled.main`
 			flex: 1;
 			margin-bottom: 2rem;
 			min-height: 32rem;
-			max-height: 64rem;
-			height: calc(var(--innerHeight, 100vh) - 8rem);
+			height: 64rem;
+			max-height: calc(var(--innerHeight, 100vh) - 8rem);
 		}
 	}
 `;
@@ -56,9 +56,15 @@ const GameControlsWrapper = styled.div`
 		}
 
 		.ui-room-chat-history {
+			position: relative;
 			flex: 1;
 			overflow-x: auto;
 			margin-bottom: 3.5rem;
+
+			&.collapsed {
+				max-height: 3rem;
+				overflow: hidden;
+			}
 		}
 
 		.ui-room-chat-box {
