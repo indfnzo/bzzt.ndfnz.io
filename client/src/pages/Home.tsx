@@ -390,8 +390,8 @@ const HOME_SUBTITLE = sample([
 	'The one and only Screaming Button™ you can trust.'
 ]);
 
+/* eslint-disable jsx-a11y/accessible-emoji */
 const Home = () => {
-
 	return (
 		<HomeWrapper className="home">
 			<section className="masthead">
@@ -563,5 +563,6 @@ const Home = () => {
 		</HomeWrapper>
 	);
 }
+/* eslint-enable jsx-a11y/accessible-emoji */
 
 export default Home;
