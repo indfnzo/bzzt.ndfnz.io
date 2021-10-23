@@ -29,6 +29,7 @@ router.get('/rooms/:roomCode', async (ctx, next) => {
 
 	ctx.body = {
 		id: room.id,
+		gameType: room.gameType,
 		roomCode: room.roomCode,
 		roomName: room.roomName,
 		hasPassword: room.hasPassword,
@@ -38,18 +39,22 @@ router.get('/rooms/:roomCode', async (ctx, next) => {
 });
 
 router.post('/rooms/new', async (ctx, next) => {
+	const gameType = sanitize(ctx.request.body.gameType).trim().substr(0, 128);
 	const username = sanitize(ctx.request.body.username).trim().substr(0, 32);
 	const roomName = sanitize(ctx.request.body.roomName).trim().substr(0, 128);
 	const password = sanitize(ctx.request.body.password).trim().substr(0, 256);
 
 	if (!roomName) return ctx.throw(400, 'ROOM_NAME_EMPTY');
 
+	const validGameTypes = ['classic', 'buzzwire'];
+	if (validGameTypes.indexOf(gameType) === -1) return ctx.throw(400, 'INVALID_GAME_TYPE');
+
 	try {
-		const room = await roomService.createRoom(roomName, password, username);
+		const room = await roomService.createRoom(gameType as GameType, roomName, password, username);
 		if (!room) return ctx.throw(404, 'ROOM_CREATION_ERROR');
 		ctx.body = { success: true, room };
 	} catch (e) {
-		return ctx.throw(400, e);
+		return ctx.throw(400, 'UNEXPECTED_ERROR');
 	}
 });
 

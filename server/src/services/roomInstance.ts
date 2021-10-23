@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
-import socketIO from 'socket.io';
 
 import RoomService from './roomService';
 import { ClassicGameInstance } from '../socket/middlewares/setupClassicGame';
+import { BuzzwireGameInstance } from '../socket/middlewares/setupBuzzwireGame';
 
 const INSTANCE_POOL: { [roomCode: string]: RoomInstance } = {};
 
@@ -17,7 +17,9 @@ export default class RoomInstance {
 	participantsHistory: string[] = [];
 	roomExpirationTimer?: NodeJS.Timeout;
 
+	gameType: GameType;
 	classic: ClassicGameInstance;
+	buzzwire: BuzzwireGameInstance;
 
 	getPassword: () => string;
 
@@ -50,7 +52,9 @@ export default class RoomInstance {
 		this.roomAdmin = room.roomAdmin;
 		this.dateCreatedUtc = room.dateCreatedUtc;
 
+		this.gameType = room.gameType;
 		this.classic = new ClassicGameInstance();
+		this.buzzwire = new BuzzwireGameInstance();
 	}
 
 	updateValues = (room: Room) => {
@@ -60,6 +64,8 @@ export default class RoomInstance {
 		this.roomName = room.roomName;
 		this.roomAdmin = room.roomAdmin;
 		this.dateCreatedUtc = room.dateCreatedUtc;
+
+		this.gameType = room.gameType;
 	}
 
 	validateUsername = (username: string) => {
@@ -106,9 +112,9 @@ export default class RoomInstance {
 
 	leave = (socketId: string) => {
 		if (socketId in this.participants) {
-			// disband the room in 30 seconds if the admin leaves
+			// disband the room in 1 minute if the admin leaves
 			if (this.isAdmin(this.participants[socketId])) {
-				this.roomExpirationTimer = setTimeout(this.disband, 30000);
+				this.roomExpirationTimer = setTimeout(this.disband, 60 * 1000);
 			}
 
 			delete this.participants[socketId];

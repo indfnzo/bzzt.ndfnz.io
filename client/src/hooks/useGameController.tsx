@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import useClassicGame, { ClassicGameController } from './useClassicGame';
-
-export type GameMode = 'classic' | 'race' | 'quiz';
+import useBuzzwireGame, { BuzzwireGameController } from './useBuzzwireGame';
 
 export type GameController = {
 	room: Room;
@@ -13,11 +12,10 @@ export type GameController = {
 	chats: ChatMessage[];
 	sendChat: (message: string) => void;
 
-	mode: GameMode;
-	setMode: (mode: GameMode) => void;
+	type: GameType;
+
 	classic: ClassicGameController;
-	// race: RaceGameController;
-	// quiz: QuizGameController;
+	buzzwire: BuzzwireGameController;
 }
 
 const useGameController = (room: Room, socket: SocketIOClient.Socket, currentUser: string): GameController => {
@@ -50,13 +48,8 @@ const useGameController = (room: Room, socket: SocketIOClient.Socket, currentUse
 	}, [room, socket, chats]);
 
 	/* -- game state controller -- */
-	const [mode, setMode] = useState<GameMode>('classic');
 	let classic: ClassicGameController = useClassicGame(room, socket, currentUser);
-
-	const setGameMode = (gameMode: GameMode) => {
-		setMode(gameMode);
-		if (gameMode === 'classic') classic.reset();
-	}
+	let buzzwire: BuzzwireGameController = useBuzzwireGame(room, socket, currentUser);
 
 	return {
 		room,
@@ -67,11 +60,10 @@ const useGameController = (room: Room, socket: SocketIOClient.Socket, currentUse
 		chats,
 		sendChat,
 
-		mode,
-		setMode: setGameMode,
+		type: room.gameType,
+
 		classic,
-		// race,
-		// quiz
+		buzzwire
 	};
 };
 

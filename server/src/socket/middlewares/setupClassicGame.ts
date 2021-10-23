@@ -6,6 +6,8 @@ export class ClassicGameInstance {
 		buzzersOnline: boolean;
 		lockedBuzzers: string[];
 		winner: string | null;
+		winTime: number | null;
+		runnersUp: { name: string, leadTime: number }[];
 		scores: { [user: string]: number }
 	};
 
@@ -15,6 +17,8 @@ export class ClassicGameInstance {
 			buzzersOnline: false,
 			lockedBuzzers: [],
 			winner: null,
+			winTime: null,
+			runnersUp: [],
 			scores: {}
 		};
 	}
@@ -22,6 +26,8 @@ export class ClassicGameInstance {
 	reset = () => {
 		this.state.buzzersOnline = false;
 		this.state.winner = null;
+		this.state.winTime = null;
+		this.state.runnersUp = [];
 	}
 
 	nextRound = () => {
@@ -30,14 +36,29 @@ export class ClassicGameInstance {
 		this.reset();
 	}
 
+	isRunnerUp = (username: string) => {
+		return this.state.runnersUp.find(r => r.name.toLocaleLowerCase() === username.toLocaleLowerCase());
+	}
+
 	buzz = (username: string) => {
+		const now = new Date().getTime();
+
 		if (this.state.lockedBuzzers.indexOf(username.toLocaleLowerCase()) >= 0) return;
 
 		if (this.state.winner == null) {
 			this.state.winner = username;
+			this.state.winTime = now;
 			return true;
 		}
 
+		// we received a double buzz from the winner for some reason
+		if (this.state.winner.toLocaleLowerCase() === username.toLocaleLowerCase()) return false;
+
+		// buzzed user is already a runner up
+		if (this.isRunnerUp(username)) return false;
+
+		// add this user to the list of runners up
+		if (this.state.winner && this.state.winTime) this.state.runnersUp.push({ name: username, leadTime: now - this.state.winTime });
 		return false;
 	}
 
@@ -118,12 +139,12 @@ const setupClassicGame = (socket: AuthenticatedSocket) => {
 
 	socket.on('game:classic:player:buzz', () => {
 		if (!game.state.buzzersOnline) return;
-		if (game.buzz(user.name)) {
-			socket.nsp.to(room.roomCode).emit('game:classic:player:buzz:accepted', user.name);
-			emitState();
-		} else {
-			socket.nsp.to(room.roomCode).emit('game:classic:player:buzz:rejected', user.name);
-		}
+		if (game.isRunnerUp(user.name)) return;
+
+		const accepted = game.buzz(user.name);
+		if (accepted) socket.nsp.to(room.roomCode).emit('game:classic:player:buzz:accepted', user.name);
+		else socket.nsp.to(room.roomCode).emit('game:classic:player:buzz:rejected', user.name);
+		emitState();
 	});
 }
 

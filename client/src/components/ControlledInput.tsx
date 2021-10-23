@@ -18,7 +18,11 @@ const ControlledInput = React.forwardRef<HTMLInputElement, InputProps & Controll
 		if (props.onChange) props.onChange(evt);
 	};
 
-	const labelClassNames = classNames('ui-input', { inverted: props.inverted, focused });
+	const labelClassNames = classNames('ui-input', {
+		inverted: props.inverted,
+		error: props.error,
+		focused
+	});
 
 	return (
 		<StyledLabel className={labelClassNames}>
@@ -34,6 +38,7 @@ const ControlledInput = React.forwardRef<HTMLInputElement, InputProps & Controll
 				autoFocus={props.autoFocus}
 				onFocus={handleFocus}
 				onBlur={handleBlur} />
+			{ props.error ? <div className="input-error">{props.error}</div> : null }
 		</StyledLabel>
 	);
 });

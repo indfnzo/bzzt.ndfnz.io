@@ -8,7 +8,7 @@ const roomService = RoomService.getInstance('rooms.db');
 	console.log('Migration OK.');
 
 	console.log('Testing database access...');
-	const testRoom = await roomService.createRoom('Test Room', 'password', 'Test User');
+	const testRoom = await roomService.createRoom('classic', 'Test Room', 'password', 'Test User');
 	if (!testRoom) {
 		console.error('Create FAILED.');
 		return;

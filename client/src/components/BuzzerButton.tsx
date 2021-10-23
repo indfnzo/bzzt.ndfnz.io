@@ -94,7 +94,7 @@ export type BuzzerButtonProps = {
 const BuzzerButton = (props: BuzzerButtonProps) => {
 	const [timeoutLocked, setTimeoutLocked] = useState(false);
 
-	const volume = props.volume == undefined ? 1.0 : props.volume;
+	const volume = props.volume == null ? 1.0 : props.volume;
 	const sounds = useSounds();
 
 	const online = props.online == null ? true : props.online;

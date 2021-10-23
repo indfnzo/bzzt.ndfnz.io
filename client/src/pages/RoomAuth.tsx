@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import querystring from 'querystring';
 import { useHistory } from 'react-router-dom';
 
-import { Header, Form, Input, ButtonGroup, Button, Loader, GlobalError } from '../components';
+import { RoomBackgroundFill, Header, Form, Input, ButtonGroup, Button, Loader, GlobalError } from '../components';
 import { useSocket, useRandomName } from '../hooks';
 import RoomControls from './RoomControls';
 import { RoomWrapper } from './RoomLanding';
@@ -51,14 +51,15 @@ const RoomLogin = (props: RoomLoginProps) => {
 				<div className="container">
 					<GlobalError title={error.title} subtitle={error.subtitle} />
 				</div>
+				<RoomBackgroundFill />
 			</RoomWrapper>
 		);
 	}
 
 	return (
 		<RoomWrapper className="room">
-			<div className="container">
-				<Header inverted />
+			<div className="stacking-container">
+				<Header inverted roomCode={props.room.roomCode} />
 				<h1>Welcome to <strong>{props.room.roomName}</strong>!</h1>
 				<Form onSubmit={handleSubmit(props.onSubmit)}>
 					<Input
@@ -89,6 +90,7 @@ const RoomLogin = (props: RoomLoginProps) => {
 					</ButtonGroup>
 				</Form>
 			</div>
+			<RoomBackgroundFill />
 		</RoomWrapper>
 	);
 }
@@ -144,6 +146,7 @@ const RoomAuth = (props: RoomAuthProps) => {
 	if (autoJoining && autoJoinAttempted.current) return (
 		<RoomWrapper className="room">
 			<Loader message="Auto Join" />
+			<RoomBackgroundFill />
 		</RoomWrapper>
 	);
 

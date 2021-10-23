@@ -28,6 +28,7 @@ const setupChat = (socket: AuthenticatedSocket) => {
 			username: user.name,
 			message: sanitize(message).substr(0, 256),
 			timestamp: moment.utc().toISOString(),
+			admin: room.isAdmin(user),
 			system: false
 		});
 	});

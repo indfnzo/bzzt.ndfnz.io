@@ -5,19 +5,19 @@ import { useMediaQuery } from 'react-responsive';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
 
-import { Header, GameArea, Loader, RoomHeader, RoomParticipants, RoomChatBox, RoomChatHistory } from '../components';
+import { RoomBackgroundFill, Header, GameArea, Loader, RoomHeader, RoomParticipants, RoomChatBox, RoomChatHistory } from '../components';
 import { useGameController } from '../hooks';
 
 export const RoomControlsWrapper = styled.main`
 	background: ${props => props.theme.primary.main};
-	background-image: url('/images/room-background.svg');
-	background-size: cover;
-	background-position: center center;
 	color: white;
 
-	> .container {
+	> .container,
+	> .stacking-container {
+		position: relative;
 		display: flex;
 		flex-direction: column;
+		z-index: 1;
 
 		> header {
 			flex: 0 0 auto;
@@ -26,9 +26,6 @@ export const RoomControlsWrapper = styled.main`
 		> .game-controls-wrapper {
 			flex: 1;
 			margin-bottom: 2rem;
-			min-height: 32rem;
-			height: 64rem;
-			max-height: calc(var(--innerHeight, 100vh) - 8rem);
 		}
 	}
 `;
@@ -45,6 +42,11 @@ const GameControlsWrapper = styled.div`
 		color: black;
 		border-radius: 10px;
 		overflow: hidden;
+
+		&:not(.mobile) {
+			min-height: 32rem;
+			max-height: calc(var(--innerHeight, 100vh) - 8rem);
+		}
 
 		.spacer {
 			flex: 1;
@@ -137,8 +139,6 @@ const GameControlsWrapper = styled.div`
 	.game-area-wrapper {
 		flex: 1;
 		position: relative;
-		border-radius: 10px;
-		overflow: hidden;
 	}
 
 	@media screen and (min-width: 960px) {
@@ -189,7 +189,7 @@ const RoomControls = (props: RoomProps) => {
 	return (
 		<RoomControlsWrapper className="room">
 			<div className="container">
-				<Header inverted />
+				<Header inverted roomCode={room.roomCode} />
 				<GameControlsWrapper className="game-controls-wrapper">
 					{ isMobile ?
 						<>
@@ -224,6 +224,7 @@ const RoomControls = (props: RoomProps) => {
 					}
 				</GameControlsWrapper>
 			</div>
+			<RoomBackgroundFill />
 		</RoomControlsWrapper>
 	);
 }

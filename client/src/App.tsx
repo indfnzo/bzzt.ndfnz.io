@@ -12,12 +12,28 @@ const defaultTheme = {
 	primary: {
 		main: '#343781'
 	},
+
 	secondary: {
 		main: '#E38A22'
 	},
+
 	red: '#E72424',
+	lightRed: '#FF9090',
+
+	orange: '#F59421',
+	lightOrange: '#F8CA95',
+
 	yellow: '#FEDB22',
+	lightYellow: '#FFEE93',
+
 	green: '#0DB61E',
+	lightGreen: '#00F076',
+
+	blue: '#1370DD',
+	lightBlue: '#00E3FF',
+
+	purple: '#9017EF',
+	lightPurple: '#C68DF3',
 
 	transitions: {
 		easeOutQuint: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)'

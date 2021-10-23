@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 
 import config from '../config';
-import { Header, Form, Input, ButtonGroup, Button } from '../components';
+import { Header, Form, Input, Select, ButtonGroup, Button, RoomBackgroundFill } from '../components';
 import { useRandomName } from '../hooks';
 
 type FormData = {
@@ -60,10 +60,19 @@ const CreateRoom = () => {
 
 	return (
 		<main className="new-room">
-			<div className="container">
+			<div className="stacking-container">
 				<Header />
 				<h1>Create a Room</h1>
 				<Form onSubmit={handleSubmit(createRoom)}>
+					<Select
+						ref={register({ required: true })}
+						options={[
+							{ value: 'classic', text: 'Classic Buzzer' },
+							{ value: 'buzzwire', text: 'Buzzwire Game' }
+						]}
+						name="gameType"
+						placeholder="Classic Buzzer"
+						label="Game Type" />
 					<Input
 						ref={register({ required: true })}
 						name="username"
@@ -90,6 +99,7 @@ const CreateRoom = () => {
 					</ButtonGroup>
 				</Form>
 			</div>
+			<RoomBackgroundFill inverted />
 		</main>
 	);
 }

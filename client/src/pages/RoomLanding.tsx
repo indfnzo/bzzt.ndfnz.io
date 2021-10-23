@@ -2,16 +2,19 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { Loader, GlobalError } from '../components';
+import { RoomBackgroundFill, Loader, GlobalError } from '../components';
 import { useRoom } from '../hooks';
 import RoomAuth from './RoomAuth';
 
 export const RoomWrapper = styled.main`
 	background: ${props => props.theme.primary.main};
 	color: white;
-	background-image: url('/images/room-background.svg');
-	background-size: cover;
-	background-position: center center;
+
+	> .container,
+	> .stacking-container {
+		position: relative;
+		z-index: 1;
+	}
 `;
 
 const RoomLanding = () => {
@@ -29,6 +32,7 @@ const RoomLanding = () => {
 						<GlobalError title={error.title} subtitle={error.subtitle} />
 					: null }
 				</div>
+				<RoomBackgroundFill />
 			</RoomWrapper>
 		);
 	} else {

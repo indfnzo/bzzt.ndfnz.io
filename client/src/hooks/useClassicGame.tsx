@@ -7,6 +7,8 @@ export type ClassicGameState = {
 	buzzersOnline: boolean;
 	lockedBuzzers: string[];
 	winner: string | null;
+	winTime: number | null;
+	runnersUp: { name: string, leadTime: number }[];
 	scores: { [user: string]: number };
 }
 
@@ -37,6 +39,8 @@ const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: 
 		buzzersOnline: false,
 		lockedBuzzers: [],
 		winner: null,
+		winTime: null,
+		runnersUp: [],
 		scores: {}
 	});
 
@@ -66,7 +70,7 @@ const useClassicGame = (room: Room, socket: SocketIOClient.Socket, currentUser: 
 			socket.off('game:classic:update');
 			socket.off('game:classic:player:buzz:accepted');
 		}
-	}, [socket, sounds, currentUser, isAdmin]);
+	}, [socket, sounds, volume, currentUser, isAdmin]);
 
 	const toggleBuzzers = () => {
 		socket.emit(`game:classic:admin:buzzers:${state.buzzersOnline ? 'off' : 'on'}`);

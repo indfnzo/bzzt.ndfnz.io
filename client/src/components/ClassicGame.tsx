@@ -15,7 +15,7 @@ const translateUp = keyframes`
 `;
 
 const CenterWrapper = styled.div`
-	padding: 2rem 0 4rem;
+	padding: 4rem 0 8rem;
 	height: 100%;
 	display: flex;
 	flex-direction: column;
@@ -29,8 +29,13 @@ const Winner = styled.div`
 	bottom: 0;
 	left: 0;
 	right: 0;
+	transition: all 500ms ${props => props.theme.transitions.easeOutQuint};
 	animation: ${translateUp} 500ms ${props => props.theme.transitions.easeOutQuint} forwards;
 	text-align: center;
+
+	&.offset-up {
+		transform: translateY(-2rem);
+	}
 
 	.name {
 		font-weight: 900;
@@ -43,6 +48,45 @@ const Winner = styled.div`
 		font-weight: 700;
 		text-transform: uppercase;
 		color: ${props => props.theme.green};
+	}
+`;
+
+const RunnersUpWrapper = styled.div`
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	position: absolute;
+	padding: 1rem;
+	padding-bottom: 0.5rem;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgba(0, 0, 0, 0.1);
+
+	.runner-up {
+		display: flex;
+		align-items: center;
+		margin-right: 1rem;
+		margin-bottom: 0.5rem;
+		white-space: nowrap;
+		font-weight: 700;
+		font-size: 1rem;
+		line-height: 1;
+
+		.name {
+			display: inline-block;
+			margin-right: 0.5rem;
+			color: ${props => props.theme.lightGreen};
+		}
+
+		.time {
+			display: inline-block;
+			padding: 0.125rem 0.5rem;
+			font-size: 0.75rem;
+			background: ${props => props.theme.lightGreen};
+			color: ${props => props.theme.primary.main};
+			border-radius: 1rem;
+		}
 	}
 `;
 
@@ -121,7 +165,7 @@ const UserPopup = (props: { user: UserPopupObject }) => {
 
 const LOSER_POPUP_DELAY = 1000;
 const UserPopups = (props: { game: GameController }) => {
-	const { socket } = props.game;
+	const { socket, currentUser } = props.game;
 	const { state, options } = props.game.classic;
 
 	const volume = options.mute ? 0.0 : options.volume;
@@ -146,8 +190,9 @@ const UserPopups = (props: { game: GameController }) => {
 
 		const flashTest = (name: string) => flashUserPopup(name, 'test');
 		const flashError = (name: string) => {
+			const self = name.toLocaleLowerCase() === currentUser.toLocaleLowerCase();
 			flashUserPopup(name, 'error');
-			setTimeout(() => sounds.buzzerError(volume), 150);
+			setTimeout(() => self ? sounds.buzzerError(volume) : sounds.retroAccomplished(volume), 150);
 		}
 
 		socket.on('game:classic:player:buzz:test', flashTest);
@@ -157,17 +202,29 @@ const UserPopups = (props: { game: GameController }) => {
 			socket.off('game:classic:player:buzz:test', flashTest);
 			socket.off('game:classic:player:buzz:rejected', flashError);
 		}
-	}, [socket, sounds, users]);
+	}, [socket, sounds, volume, users, currentUser]);
+
+	const hasRunnersUp = state.runnersUp.length > 0;
 
 	const userPopups = users.map(user => <UserPopup key={user.key} user={user} />);
 
 	return (
 		<>
 			{ state.winner ?
-				<Winner>
+				<Winner className={hasRunnersUp ? 'offset-up' : '' }>
 					<div className="name">{state.winner}</div>
 					<div className="label">It's your turn!</div>
 				</Winner>
+			: null }
+			{ hasRunnersUp ?
+				<RunnersUpWrapper>
+					{ state.runnersUp.map(r => (
+						<div key={r.name} className="runner-up">
+							<span className="name">{r.name}</span>
+							<span className="time">+{r.leadTime / 1000}s</span>
+						</div>
+					)) }
+				</RunnersUpWrapper>
 			: null }
 			{userPopups}
 		</>
@@ -339,8 +396,9 @@ export const PlayerControls = (props: { game: GameController }) => {
 	const { currentUser } = props.game;
 	const { state, buzzerTest, userBuzzed, options } = props.game.classic;
 
-	const accepted = state.winner?.toLocaleLowerCase() === currentUser.toLocaleLowerCase();
-	const locked = state.lockedBuzzers.indexOf(currentUser.toLocaleLowerCase()) >= 0;
+	const userKey = currentUser.toLocaleLowerCase();
+	const accepted = state.winner?.toLocaleLowerCase() === userKey;
+	const locked = state.lockedBuzzers.indexOf(userKey) >= 0 || state.runnersUp.find(r => r.name.toLocaleLowerCase() === userKey) != null;
 
 	const volume = options.mute ? 0.0 : options.volume;
 

@@ -37,6 +37,11 @@ const UserPanel = styled.div`
 		font-weight: 900;
 	}
 
+	&.admin {
+		color: ${props => props.theme.red};
+		font-weight: 900;
+	}
+
 	.name {
 		flex: 0 0 auto;
 	}
@@ -122,7 +127,7 @@ const RoomParticipants = (props: { game: GameController }) => {
 
 		const isAdmin = room.roomAdmin.toLocaleLowerCase() === u.name.toLocaleLowerCase();
 
-		const classic = props.game.mode === 'classic';
+		const classic = props.game.type === 'classic';
 		const showUserControls = currentUserIsAdmin && !isAdmin;
 		const toggleBuzzerLock = props.game.classic.toggleBuzzerLock;
 		const decrementScore = props.game.classic.decrementScore;
@@ -135,7 +140,7 @@ const RoomParticipants = (props: { game: GameController }) => {
 			locked = state.lockedBuzzers.indexOf(u.name.toLocaleLowerCase()) >= 0;
 		}
 
-		const userPanelClassNames = classNames('ui-user-panel', { active: isActive });
+		const userPanelClassNames = classNames('ui-user-panel', { active: isActive, admin: isAdmin });
 		userPanels.push(
 			<UserPanel className={userPanelClassNames} key={u.socketId}>
 				<span className="name">{u.name}</span>

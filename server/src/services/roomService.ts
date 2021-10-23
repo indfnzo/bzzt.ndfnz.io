@@ -42,6 +42,7 @@ export default class RoomService {
 			DROP TABLE IF EXISTS rooms;
 			CREATE TABLE rooms (
 				id INTEGER PRIMARY KEY,
+				gameType TEXT,
 				roomCode TEXT,
 				password TEXT,
 				roomName TEXT,
@@ -92,13 +93,13 @@ export default class RoomService {
 		}
 	}
 
-	createRoom = async (roomName: string, password: string, roomAdmin: string) => {
+	createRoom = async (gameType: GameType, roomName: string, password: string, roomAdmin: string) => {
 		var roomCode = await this.generateRoomCode();
 		const hashedPassword = password ? bcrypt.hashSync(password, 10) : null;
 		const dateCreatedUtc = moment.utc().toISOString();
 
 		const db = await this.open();
-		const result = await db.run('INSERT INTO rooms (roomCode, roomName, password, roomAdmin, dateCreatedUtc) VALUES (?, ?, ?, ?, ?)', roomCode, roomName, hashedPassword, roomAdmin, dateCreatedUtc);
+		const result = await db.run('INSERT INTO rooms (gameType, roomCode, roomName, password, roomAdmin, dateCreatedUtc) VALUES (?, ?, ?, ?, ?, ?)', gameType, roomCode, roomName, hashedPassword, roomAdmin, dateCreatedUtc);
 
 		const room = await db.get<Room>('SELECT * FROM rooms WHERE id = (?)', result.lastID);
 		await db.close();

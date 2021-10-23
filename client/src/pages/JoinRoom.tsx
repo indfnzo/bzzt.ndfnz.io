@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 
-import { Header, Form, ControlledInput, Button, ButtonGroup } from '../components';
+import { RoomBackgroundFill, Header, Form, ControlledInput, Button, ButtonGroup } from '../components';
 import { useRoom } from '../hooks';
 
 type FormData = {
@@ -35,7 +35,7 @@ const JoinRoom = () => {
 	if (!room) {
 		return (
 			<main className="join-room">
-				<div className="container">
+				<div className="stacking-container">
 					<Header />
 					<Form onSubmit={handleSubmit(fetchRoom)}>
 						<Controller
@@ -49,13 +49,14 @@ const JoinRoom = () => {
 							label="Room Code"
 							placeholder="XOXOX"
 							autoComplete="off"
-							transform={transformRoomCode} />
-						{roomLoadingError}
+							transform={transformRoomCode}
+							error={roomLoadingError?.subtitle} />
 						<ButtonGroup align="right">
 							<Button disabled={!formState.isValid || roomLoading} type="submit">Join Room!</Button>
 						</ButtonGroup>
 					</Form>
 				</div>
+				<RoomBackgroundFill inverted />
 			</main>
 		);
 	} else {

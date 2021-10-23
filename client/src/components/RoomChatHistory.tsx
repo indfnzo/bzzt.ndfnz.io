@@ -35,6 +35,7 @@ const ChatHistory = styled.div`
 			background: white;
 			text-align: center;
 			line-height: 2rem;
+			outline: none;
 			cursor: pointer;
 			transition: all 100ms ease;
 
@@ -64,7 +65,12 @@ const ChatMessageWrapper = styled.div`
 	}
 
 	strong {
+		font-weight: 900;
 		color: ${props => props.theme.primary.main};
+
+		&.admin {
+			color: ${props => props.theme.red};
+		}
 	}
 `;
 
@@ -78,7 +84,7 @@ const ChatMessage = (props: { message: ChatMessage }) => {
 	);
 	return (
 		<ChatMessageWrapper>
-			<strong>{message.username}:</strong> {message.message}
+			<strong className={message.admin ? 'admin' : ''}>{message.username}:</strong> {message.message}
 		</ChatMessageWrapper>
 	);
 }
@@ -86,6 +92,8 @@ const ChatMessage = (props: { message: ChatMessage }) => {
 const RoomChatHistory = (props: { autoscroll: boolean; game: GameController }) => {
 	const { chats } = props.game;
 	const [collapsed, setCollapsed] = useState(true);
+	const [lastReadChat, setLastReadChat] = useState<any>(null);
+	const [unreadCount, setUnreadCount] = useState(0);
 
 	const root = useRef<HTMLDivElement>(null);
 	const scrollReference = useRef<HTMLDivElement>(null);
@@ -97,6 +105,13 @@ const RoomChatHistory = (props: { autoscroll: boolean; game: GameController }) =
 			else root.current?.scrollIntoView({ behavior: 'smooth' });
 		}
 	}, [chats, props.autoscroll, collapsed]);
+
+	// increment unread counter
+	useEffect(() => {
+		const index = lastReadChat ? chats.indexOf(lastReadChat) + 1 : 0;
+		setUnreadCount(chats.length - index);
+		if (!collapsed) setLastReadChat(chats[chats.length - 1]);
+	}, [chats, collapsed, lastReadChat, setLastReadChat]);
 	
 	const rootClassNames = classNames('ui-room-chat-history', {
 		'collapsed': collapsed
@@ -105,14 +120,17 @@ const RoomChatHistory = (props: { autoscroll: boolean; game: GameController }) =
 	return (
 		<ChatHistory ref={root} className={rootClassNames}>
 			<div className="history-header">
-				<div className="label">Room Chat</div>
+				<div className="label">
+					Room Chat
+					{ unreadCount > 0 ? ` (${unreadCount})` : '' }
+				</div>
 				<button className="collapse-toggle" onClick={() => setCollapsed(!collapsed)}>
 					{ collapsed ? <FontAwesomeIcon icon={faChevronUp} /> : <FontAwesomeIcon icon={faChevronDown} /> }
 				</button>
 			</div>
 
 			<div className="chat-history">
-				{ chats.map(chat => <ChatMessage key={chat.timestamp} message={chat} />) }
+				{ chats.map(chat => <ChatMessage key={chat.username + chat.message + chat.timestamp} message={chat} />) }
 				<div ref={scrollReference} className="scroll-reference"></div>
 			</div>
 		</ChatHistory>

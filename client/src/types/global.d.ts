@@ -1,5 +1,8 @@
+declare type GameType = 'classic' | 'buzzwire';
+
 declare type Room = {
 	id: number;
+	gameType: GameType;
 	roomCode: string;
 	roomName: string;
 	hasPassword: boolean;
@@ -16,5 +19,6 @@ declare type ChatMessage = {
 	timestamp: string;
 	username: string;
 	message: string;
+	admin: boolean;
 	system: boolean;
 }
