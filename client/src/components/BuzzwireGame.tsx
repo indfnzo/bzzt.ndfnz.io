@@ -8,7 +8,7 @@ import Button from './Button';
 import Input from './Input';
 import { GameController } from '../hooks/useGameController';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faCheck, faCertificate } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faCheck, faCertificate, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 const translateUp = keyframes`
 	from { bottom: -100%; }
@@ -312,6 +312,37 @@ export const PlayerCursor = styled.div`
 			opacity: 0.75;
 		}
 	}
+
+	&.completed {
+		.cursor {
+			position: relative;
+			top: 0;
+			left: 0;
+			width: 0;
+			height: 0;
+			background: none;
+			opacity: 0.75;
+
+			.player-check {
+				font-size: 0;
+				color: ${props => props.theme.green};
+
+				svg {
+					position: absolute;
+					top: -0.4rem;
+					left: -0.4rem;
+					width: 0.8rem;
+					height: 0.8rem;
+				}
+			}
+		}
+
+		.name {
+			color: ${props => props.theme.green};
+			left: 0.75rem;
+			opacity: 0.75;
+		}
+	}
 `
 
 export const PlayerCursorsCanvas = (props: { game: GameController }) => {
@@ -326,25 +357,31 @@ export const PlayerCursorsCanvas = (props: { game: GameController }) => {
 
 		const self = player.name.toLocaleLowerCase() === currentUser.toLocaleLowerCase();
 		const admin = player.name.toLocaleLowerCase() === room.roomAdmin.toLocaleLowerCase();
-		const coords = (state.isPlaying && !self && !admin && player.progress > 0) ? state.path[player.progress] || player.coords : player.coords;
+		const coords = (state.isPlaying && !self && !admin && !player.completed && player.progress > 0) ? state.path[player.progress] || player.coords : player.coords;
 
 		const left = ((coords[0] / 800) * 100) + '%';
 		const top = ((coords[1] / 450) * 100) + '%';
 
-		const tracing = self && !admin && player.progress > 0 && !player.completed;
+		const tracing = self && !admin && player.progress > 0 && !player.completed && !player.completed;
+		const completed = state.isPlaying && !admin && player.completed;
 
 		const cursorClassNames = classNames({
 			'self': self,
 			'admin': admin,
 			'tracing': tracing,
 			'behind': !self && !admin && !currentPlayerIsAdmin && currentPlayer && player.progress < currentPlayer.progress,
-			'ahead': !self && !admin && !currentPlayerIsAdmin && currentPlayer && player.progress > currentPlayer.progress
+			'ahead': !self && !admin && !currentPlayerIsAdmin && currentPlayer && player.progress > currentPlayer.progress,
+			'completed': completed
 		});
 
 		const cursor = (
 			<PlayerCursor key={player.name} style={{ left, top, zIndex: player.progress }} className={cursorClassNames}>
-				<div className="name">{ tracing ? (((player.progress+1) / state.path.length) * 100).toFixed(2) + '%' : player.name }</div>
-				<div className="cursor"></div>
+				<div className="name">
+					{ tracing ? (((player.progress+1) / state.path.length) * 100).toFixed(2) + '%' : player.name }
+				</div>
+				<div className="cursor">
+					{ completed ? <span className="player-check"><FontAwesomeIcon icon={faCheckCircle} /></span> : '' }
+				</div>
 			</PlayerCursor>
 		);
 
