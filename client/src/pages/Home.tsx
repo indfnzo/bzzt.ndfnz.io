@@ -402,7 +402,7 @@ const Home = () => {
 							<circle cx="32" cy="32" r="28" fill="#343781"/>
 							<path d="M8 8H28V28H8V8Z" fill="#343781"/>
 							<path d="M36 36H56V56H36V36Z" fill="#343781"/>
-							<path fill-rule="evenodd" clip-rule="evenodd" d="M32 12H12V20H25.3334L12 36V44H16H28V52H32H52V44H38.6667L52 28V20H48H36V12H32ZM22.6667 36L29.3334 28H41.3334L34.6667 36H22.6667Z" fill="white"/>
+							<path fillRule="evenodd" clipRule="evenodd" d="M32 12H12V20H25.3334L12 36V44H16H28V52H32H52V44H38.6667L52 28V20H48H36V12H32ZM22.6667 36L29.3334 28H41.3334L34.6667 36H22.6667Z" fill="white"/>
 						</svg>
 					</div>
 					<h1>
@@ -464,9 +464,9 @@ const Home = () => {
 							<p>
 								<strong>Limitless! 🛫</strong>
 								<br/>Maximum room time and player count? No thanks! We don't have any usage limits (for now), so go wild!
-								<p className="subtext">
-									PS: Don't expect too much though, that's obviously untested (who even has that many friends??). Also, this entire site is running on a potato server.
-								</p>
+							</p>
+							<p className="subtext">
+								PS: Don't expect too much though, that's obviously untested (who even has that many friends??). Also, this entire site is running on a potato server.
 							</p>
 						</div>
 					</div>
@@ -480,9 +480,9 @@ const Home = () => {
 							<h2>Nice! How do I use it?</h2>
 							<p>
 								Try <a href="/room/new">creating a room</a>! You can open your room in multiple devices or browser windows, give yourself different names, and play around with the buzzer.
-								<p className="muted">
-									Protip: Click the <FontAwesomeIcon icon={faShareAlt} /> button to copy your room's link.
-								</p>
+							</p>
+							<p className="muted">
+								Protip: Click the <FontAwesomeIcon icon={faShareAlt} /> button to copy your room's link.
 							</p>
 							<p>
 								Once you're comfortable hosting your own game, you can send your invite link to your friends so they can join. 👨‍👨‍👦‍👦

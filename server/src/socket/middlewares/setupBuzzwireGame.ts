@@ -1,3 +1,5 @@
+import { throttle } from 'lodash';
+
 import { AuthenticatedSocket } from './authenticate';
 
 // helper methods
@@ -43,6 +45,9 @@ export type BuzzwireGameState = {
 
 export class BuzzwireGameInstance {
 	state: BuzzwireGameState;
+
+	_lastEmitUpdateTime: number | null = null;
+	_lastEmitUpdateTimeout: NodeJS.Timeout | null = null;
 
 	constructor() {
 		this.state = {
@@ -125,6 +130,22 @@ export class BuzzwireGameInstance {
 		if (pstate) pstate.coords = null;
 	}
 
+	/** acts as the room-wide throttling mechanism so all players can coordinate whether or not it's ok to send the next coordinate update */
+	UPDATE_TIMEOUT = 1000 / 30;
+	queueEmitUpdate = (callback: () => void) => {
+		const now = new Date().getTime();
+
+		if (!this._lastEmitUpdateTime) this._lastEmitUpdateTime = now;
+
+		if (this._lastEmitUpdateTime <= now - this.UPDATE_TIMEOUT) {
+			if (this._lastEmitUpdateTimeout) clearTimeout(this._lastEmitUpdateTimeout);
+
+			callback();
+			this._lastEmitUpdateTime = now;
+			this._lastEmitUpdateTimeout = setTimeout(callback, this.UPDATE_TIMEOUT * 2);
+		}
+	}
+
 	reset = () => {
 		this.stopGame();
 		this.state.isDrawing = false;
@@ -174,7 +195,6 @@ const setupBuzzwireGame = (socket: AuthenticatedSocket) => {
 
 	const emitUpdate = (user?: User) => {
 		const state: Partial<BuzzwireGameState> = { ...game.state, path: undefined };
-
 		if (state.startTime) state.playTime = (new Date().getTime()) - state.startTime;
 
 		socket.nsp
@@ -188,13 +208,16 @@ const setupBuzzwireGame = (socket: AuthenticatedSocket) => {
 			.emit('game:buzzwire:path:update', game.state.path);
 	}
 
-	const emitState = (full?: boolean, user?: User) => {
-		emitUpdate(user);
+	const emitState = (opts?: { full?: boolean, throttle?: boolean, user?: User }) => {
+		const { full, throttle, user } = opts || {};
+
+		if (throttle) game.queueEmitUpdate(emitUpdate);
+		else emitUpdate(user);
 		if (full) emitPath(user);
 	}
 
 	// immediately send the most recent game state to the newly-connected user
-	emitState(true, user);
+	emitState({ full: true, user });
 
 	// if the game is in progress, force-send a start command as well
 	if (game.state.isPlaying && !game.state.isOnCountdown) {
@@ -204,17 +227,17 @@ const setupBuzzwireGame = (socket: AuthenticatedSocket) => {
 	if (room.isAdmin(user)) {
 		socket.on('game:buzzwire:admin:path:isdrawing', (isDrawing: boolean) => {
 			game.setIsDrawing(isDrawing);
-			emitState(true);
+			emitState({ full: true });
 		});
 
 		socket.on('game:buzzwire:admin:path:addpoint', (point: { x: number, y: number }) => {
 			game.addPoint(point.x, point.y);
-			emitState(true);
+			emitState({ full: true });
 		});
 
 		socket.on('game:buzzwire:admin:reset', () => {
 			game.reset();
-			emitState(true);
+			emitState({ full: true });
 		});
 
 		socket.on('game:buzzwire:admin:game:start', () => {
@@ -258,7 +281,8 @@ const setupBuzzwireGame = (socket: AuthenticatedSocket) => {
 		} else {
 			game.removeCoordinates(user.name);
 		}
-		emitState();
+
+		emitState({ throttle: true });
 	});
 }
 
