@@ -41,6 +41,7 @@
 
 		html, body {
 			font-size: 16px;
+			height: 100%;
 		}
 
 		body {
@@ -66,7 +67,7 @@
 			align-items: center;
 			justify-content: center;
 			padding: 4rem;
-			min-height: 100vh;
+			min-height: 100%;
 		}
 
 		.error-container {
@@ -129,7 +130,7 @@
 			}
 
 			#root {
-				padding: 2rem 1rem;
+				padding: 4rem 1rem;
 			}
 
 			.error-container {
@@ -175,16 +176,6 @@
 			transform-origin: bottom;
 		}
 
-		@keyframes animate-in {
-			from { transform: translateY(10vh); opacity: 0; }
-			to   { transform: none; opacity: 1; }
-		}
-
-		@keyframes shift-left {
-			from { left: -200%; }
-			to   { left: 0; }
-		}
-
 		.wave-2 {
 			height: 75%;
 		}
@@ -207,7 +198,7 @@
 		window.addEventListener('load', recalculateHeight);
 	</script>
 </head>
-<body style="--inner-height: 100vh; --half-height: 50vh;">
+<body style="--inner-height: 100%; --half-height: 50%;">
 	<div id="root">
 		<div class="error-container">
 			<div class="logo">
