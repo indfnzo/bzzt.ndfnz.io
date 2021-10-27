@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<link rel="icon" href="/favicon.ico" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="description" content="BZZT 📢 - Buzzer App 📢" />
+
+	<link rel="stylesheet" href="/fonts/Inter/inter.css">
+	<link rel="stylesheet" href="/fonts/Metropolis/metropolis.css">
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#343781">
+	<meta name="apple-mobile-web-app-title" content="BZZT">
+	<meta name="application-name" content="BZZT">
+	<meta name="msapplication-TileColor" content="#343781">
+	<meta name="theme-color" content="#343781">
+
+	<link rel="manifest" href="/manifest.json" />
+	<title>BZZT</title>
+
+	<style>
+		:root {
+			--color-primary: #343781;
+			--color-secondary: #5257CD;
+			--color-link: #D1D3FF;
+			--color-white: #FFFFFF;
+			--color-wave-1: rgb(82, 87, 205, 0.25);
+			--color-wave-2: rgb(82, 87, 205, 0.25);
+			--color-wave-3: #5257CD;
+			--border-radius: 1rem;
+
+			--waves-animate-in-duration: 2s;
+			--waves-animate-in-stagger: 750ms;
+
+			--waves-shift-left-speed: 20.0;
+		}
+
+		html, body {
+			font-size: 16px;
+		}
+
+		body {
+			padding: 0;
+			margin: 0;
+			font-family: 'Metropolis', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+				'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+				sans-serif;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+			line-height: 1.25;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		#root {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 4rem;
+			min-height: 100vh;
+
+			background: var(--color-primary);
+			color: var(--color-white);
+		}
+
+		.error-container {
+			position: relative;
+			margin: auto;
+			padding: 3rem 4rem;
+			max-width: 40rem;
+
+			background: rgba(0, 0, 0, 0.5);
+			backdrop-filter: blur(25px);
+			color: var(--color-white);
+
+			text-align: center;
+
+			border-radius: var(--border-radius);
+			z-index: 1;
+		}
+
+		.logo {
+			position: absolute;
+			left: calc(50% - 2.5rem);
+			top: -2.5rem;
+			font-size: 0;
+		}
+
+		.logo img {
+			width: 5rem;
+			height: 5rem;
+		}
+
+		h1 {
+			margin: 2rem 0 2rem;
+			color: var(--color-link);
+		}
+
+		p {
+			margin: 0.5rem 0;
+			font-size: 1.5rem;
+		}
+
+		.bottom-text {
+			margin-top: 2rem;
+		}
+
+		a {
+			display: inline-block;
+			color: var(--color-link);
+			font-weight: 700;
+		}
+
+		@media screen and (max-width: 960px) {
+			html, body {
+				font-size: 14px;
+			}
+		}
+
+		@media screen and (max-width: 640px) {
+			html, body {
+				font-size: 12px;
+			}
+
+			#root {
+				padding: 2rem 1rem;
+			}
+
+			.error-container {
+				padding: 2rem 3rem;
+			}
+		}
+
+		.sine-waves {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 50vh;
+			overflow: hidden;
+			opacity: 0;
+		}
+
+		.sine-waves.reverse {
+			top: 50vh;
+			bottom: 0;
+			transform: scaleY(-1);
+		}
+
+		.pilot-line {
+			content: "";
+			position: fixed;
+			top: calc(50% - 2px);
+			height: 4px;
+			left: 0;
+			right: 0;
+			background: var(--color-secondary);
+		}
+
+		.sine-wave {
+			position: absolute;
+			left: -200%;
+			bottom: 0;
+			width: 400%;
+			height: 100%;
+			opacity: 0;
+			transform: scaleY(0);
+			transform-origin: bottom;
+		}
+
+		@keyframes animate-in {
+			from { transform: translateY(10vh); opacity: 0; }
+			to   { transform: none; opacity: 1; }
+		}
+
+		@keyframes shift-left {
+			from { left: -200%; }
+			to   { left: 0; }
+		}
+
+		.wave-2 {
+			height: 75%;
+		}
+
+		.wave-3 {
+			height: 10%;
+		}
+	</style>
+</head>
+<body>
+	<div id="root">
+		<div class="error-container">
+			<div class="logo">
+				<img src="/images/logo-64.svg" alt="BZZT">
+			</div>
+
+			<h1>Snap! That didn't work.</h1>
+			<p>Sorry about that, we seem to be down at the moment. Please try again in a few minutes.</p>
+
+			<div class="bottom-text">
+				If you keep seeing this message, please don't hesitate to <a href="mailto:jerome@ndfnz.io?subject=[BZZT] Server Error">shoot me an email</a>.
+			</div>
+		</div>
+
+		<div class="pilot-line"></div>
+
+		<div class="sine-waves">
+			<svg class="sine-wave wave-1" data-sequence-id="1" width="400" height="128" viewBox="0 0 400 128" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M50 64C34.105 39 18.21 14 0 14V128H400V14C381.79 14 365.895 39 350 64C334.105 89 318.21 114 300 114C281.79 114 265.895 89 250 64C234.105 39 218.21 14 200 14C181.79 14 165.895 39 150 64C134.105 89 118.21 114 100 114C81.79 114 65.895 89 50 64Z" fill="var(--color-wave-1)" />
+			</svg>
+			<svg class="sine-wave wave-2" data-sequence-id="2" width="400" height="128" viewBox="0 0 400 128" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M50 64C34.105 39 18.21 14 0 14V128H400V14C381.79 14 365.895 39 350 64C334.105 89 318.21 114 300 114C281.79 114 265.895 89 250 64C234.105 39 218.21 14 200 14C181.79 14 165.895 39 150 64C134.105 89 118.21 114 100 114C81.79 114 65.895 89 50 64Z" fill="var(--color-wave-2)" />
+			</svg>
+			<svg class="sine-wave wave-3" data-sequence-id="3" width="400" height="128" viewBox="0 0 400 128" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M50 64C34.105 39 18.21 14 0 14V128H400V14C381.79 14 365.895 39 350 64C334.105 89 318.21 114 300 114C281.79 114 265.895 89 250 64C234.105 39 218.21 14 200 14C181.79 14 165.895 39 150 64C134.105 89 118.21 114 100 114C81.79 114 65.895 89 50 64Z" fill="var(--color-wave-3)" />
+			</svg>
+		</div>
+
+		<div class="sine-waves reverse">
+			<svg class="sine-wave wave-1" data-sequence-id="1" width="400" height="128" viewBox="0 0 400 128" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M50 64C34.105 39 18.21 14 0 14V128H400V14C381.79 14 365.895 39 350 64C334.105 89 318.21 114 300 114C281.79 114 265.895 89 250 64C234.105 39 218.21 14 200 14C181.79 14 165.895 39 150 64C134.105 89 118.21 114 100 114C81.79 114 65.895 89 50 64Z" fill="var(--color-wave-1)" />
+			</svg>
+			<svg class="sine-wave wave-2" data-sequence-id="2" width="400" height="128" viewBox="0 0 400 128" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M50 64C34.105 39 18.21 14 0 14V128H400V14C381.79 14 365.895 39 350 64C334.105 89 318.21 114 300 114C281.79 114 265.895 89 250 64C234.105 39 218.21 14 200 14C181.79 14 165.895 39 150 64C134.105 89 118.21 114 100 114C81.79 114 65.895 89 50 64Z" fill="var(--color-wave-2)" />
+			</svg>
+			<svg class="sine-wave wave-3" data-sequence-id="3" width="400" height="128" viewBox="0 0 400 128" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M50 64C34.105 39 18.21 14 0 14V128H400V14C381.79 14 365.895 39 350 64C334.105 89 318.21 114 300 114C281.79 114 265.895 89 250 64C234.105 39 218.21 14 200 14C181.79 14 165.895 39 150 64C134.105 89 118.21 114 100 114C81.79 114 65.895 89 50 64Z" fill="var(--color-wave-3)" />
+			</svg>
+		</div>
+	</div>
+
+	<script>
+		const animateWaves = (waves) => {
+			for (const wave of waves) {
+				const id = parseInt(wave.getAttribute('data-sequence-id'));
+				console.log(wave, id);
+
+				wave.animate([
+					{ opacity: 0 },
+					{ opacity: 1 }
+				], {
+					duration: 1000,
+					delay: 3000 - (id * 1000),
+					easing: 'ease-out',
+					fill: 'forwards'
+				});
+
+				// animate in
+				wave.animate([
+					{ transform: 'scaleY(0)' },
+					{ transform: 'none' }
+				], {
+					duration: 5000,
+					delay: 2000 - (id * 500),
+					easing: 'cubic-bezier(.12,.95,.27,.99)',
+					fill: 'forwards'
+				});
+
+				// shift left
+				wave.animate([
+					{ left: '-200%' },
+					{ left: '0' }
+				], {
+					duration: 35000 - (id * 10000),
+					delay: -25000 + (id * 5000),
+					iterations: Infinity
+				});
+			}
+		}
+
+		animateWaves(document.querySelectorAll('.sine-waves:not(.reverse) .sine-wave'));
+		animateWaves(document.querySelectorAll('.sine-waves.reverse .sine-wave'));
+
+		document.querySelectorAll('.pilot-line').forEach(group => {
+			group.animate([
+				{ opacity: 0 },
+				{ opacity: 1 }
+			], {
+				duration: 1000,
+				easing: 'ease-out',
+				fill: 'forwards'
+			});
+		});
+
+		document.querySelectorAll('.sine-waves').forEach(group => {
+			group.animate([
+				{ opacity: 0 },
+				{ opacity: 1 }
+			], {
+				duration: 1000,
+				easing: 'ease-out',
+				fill: 'forwards'
+			});
+		});
+	</script>
+</body>
+</html>
