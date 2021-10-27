@@ -52,6 +52,9 @@
 			-webkit-font-smoothing: antialiased;
 			-moz-osx-font-smoothing: grayscale;
 			line-height: 1.25;
+
+			background: var(--color-primary);
+			color: var(--color-white);
 		}
 
 		* {
@@ -64,9 +67,6 @@
 			justify-content: center;
 			padding: 4rem;
 			min-height: 100vh;
-
-			background: var(--color-primary);
-			color: var(--color-white);
 		}
 
 		.error-container {
@@ -142,13 +142,14 @@
 			top: 0;
 			left: 0;
 			right: 0;
-			bottom: 50vh;
+			height: var(--half-height);
 			overflow: hidden;
 			opacity: 0;
 		}
 
 		.sine-waves.reverse {
-			top: 50vh;
+			height: auto;
+			top: var(--half-height);
 			bottom: 0;
 			transform: scaleY(-1);
 		}
@@ -156,8 +157,8 @@
 		.pilot-line {
 			content: "";
 			position: fixed;
-			top: calc(50% - 2px);
-			height: 4px;
+			top: calc(var(--half-height) - 1px);
+			height: 2px;
 			left: 0;
 			right: 0;
 			background: var(--color-secondary);
@@ -192,8 +193,21 @@
 			height: 10%;
 		}
 	</style>
+
+	<script>
+		// recalculate inner window height
+		const recalculateHeight = () => {
+			const body = document.body;
+			const box = body.getBoundingClientRect();
+			body.style.setProperty('--inner-height', box.height + 'px');
+			body.style.setProperty('--half-height', Math.round(box.height / 2) + 'px');
+		}
+
+		window.addEventListener('resize', recalculateHeight);
+		window.addEventListener('load', recalculateHeight);
+	</script>
 </head>
-<body>
+<body style="--inner-height: 100vh; --half-height: 50vh;">
 	<div id="root">
 		<div class="error-container">
 			<div class="logo">
